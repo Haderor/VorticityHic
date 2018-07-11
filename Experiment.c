@@ -8,6 +8,7 @@
 #include "TVector3.h"
 #include "TGraph2D.h"
 #include "TGraph.h"
+#include "TMath.h"
 #include <cmath>
 #include <iostream>
 
@@ -50,8 +51,16 @@ void Experiment::Loop()
 	TH1D *HistKa = new TH1D("HistKa", "", 100, 0, 5);	// Kaon
 	TH1D *HistPr = new TH1D("HistPr", "", 100, 0, 5);	// Proton
 	TH1D *HistLa = new TH1D("HistLa", "", 100, 0, 5);	// Lambda
-	// TH1D *HistpsiRp = new TH1D("HistpsiRp", "", 100, 0, 7);
-	Double_t rx1, ry1, px1, py1, pt;	//Temporary storage for coordinates and momentum
+    TH1D *HistPsiRp = new TH1D("HistPsiRp", "", 100, 0, 6.3);	// psiRp
+    TH1D *HistFi = new TH1D("HistFi", "", 100, 0, 4);	// Angle between P and Px
+    TH1D *HistCFi = new TH1D("HistCFi", "", 100, -1, 1);	// cos(fi)
+    TH1D *HistSFi = new TH1D("HistSFi", "", 100, -1, 1);	// sin(fi)
+    TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 100, 0, 4);	// Fi-Psi
+    TH1D *HistCFiPsi = new TH1D("HistCFiPsi", "", 100, -1, 1);	// cos(Fi-Psi)
+    TH1D *HistSFiPsi = new TH1D("HistSFiPsi", "", 100, -1, 1);	// sin(Fi-Psi)
+    
+
+	Double_t rx1, ry1, px1, py1, pt, fi;	//Temporary storage for coordinates and momentum
 	Double_t X, Y, Z;		// Limits for coordinates
 	X = Y = Z = 200.0;
 	Double_t dx, dy, dz;	// Splitting characteristic
@@ -92,14 +101,23 @@ void Experiment::Loop()
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
 		fChain->GetEntry(jentry);
+        HistPsiRp->Fill(psiRp);
 		//cout << r0[0] << endl;
 		for (Int_t i = 0; i<n_particles; i++) {
 			rx1=rx[i]; ry1=ry[i];
 			rx[i] = rx1*cos(psiRp)+ry1*sin(psiRp);
 			ry[i] = -rx1*sin(psiRp)+ry1*cos(psiRp);
 			px1=px[i]; py1=py[i];
-                        px[i] = px1*cos(psiRp)+py1*sin(psiRp);
-                        py[i] = -px1*sin(psiRp)+py1*cos(psiRp);
+            px[i] = px1*cos(psiRp)+py1*sin(psiRp);
+            py[i] = -px1*sin(psiRp)+py1*cos(psiRp);
+            fi = TMath::ATan2(py[i], px[i]);
+            HistFi->Fill(TMath::ACos(TMath::Cos(fi)));
+            HistCFi->Fill(TMath::Cos(fi));
+            HistSFi->Fill(TMath::Sin(fi));
+            HistFiPsi->Fill(TMath::ACos(TMath::Cos(fi-psiRp)));
+            HistCFiPsi->Fill(TMath::Cos(fi - psiRp));
+            HistSFiPsi->Fill(TMath::Sin(fi - psiRp));
+
 			// Determine cell of particle
 			int kx, ky, kz;
 			kx = (rx[i] + X)/dx;
@@ -234,7 +252,13 @@ void Experiment::Loop()
 	HistKa->Write();
 	HistPr->Write();
 	HistLa->Write();
-	// HistpsiRp->Write();
+    HistFi->Write();
+    HistCFiPsi->Write();
+    HistSFiPsi->Write();
+    HistFiPsi->Write();
+    HistCFiPsi->Write();
+    HistSFiPsi->Write();
+	HistPsiRp->Write();
 	MyFile->Write();
 
 	// Draw velocity and vorticity
