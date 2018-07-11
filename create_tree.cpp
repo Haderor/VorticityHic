@@ -9,8 +9,39 @@
 
 using namespace std;
 
-int main() {
-	ifstream fin("test1.f14");	// File with events
+int main(int argc, char** argv) {
+
+	TString inFileName, outFileName;
+
+	if (argc < 5){
+		std::cerr << "./main -i INPUTFILE -o IUTPUTFILE" << std::endl;
+		return 10;
+	}
+	
+	for (int i=1; i<argc; i++){
+		if (std::string(argv[i]) != "-i" &&
+				std::string(argv[i]) != "-o"){
+			std::cerr << "\n[ERROR]: Unknown parameter: " << i << ": " << argv[i] << std::endl;
+			return 10;
+		}else{
+			if (std::string(argv[i]) == "-i" && i!=argc-1){
+				inFileName = argv[++i];
+			}
+			if (std::string(argv[i]) == "-i" && i==argc-1){
+				std::cerr << "\n[ERROR]: Input file name was not specified!" << std::endl;
+				return 20;
+			}
+			if (std::string(argv[i]) == "-o" && i!=argc-1){
+				outFileName = argv[++i];
+			}
+			if (std::string(argv[i]) == "-i" && i==argc-1){
+				std::cerr << "\n[ERROR]: Output file name was not specified!" << std::endl;
+				return 21;
+			}
+		}
+	}
+
+	ifstream fin(inFileName.Data());	// File with events
 	if (!fin.is_open()) {
 		cout << "Attached file was not opened!" << endl;
 		exit(15);
@@ -18,7 +49,7 @@ int main() {
 
 	string str;
 	stringstream ss;
-	TFile *MyFile = new TFile("tree.root", "recreate");	// File to save results
+	TFile *MyFile = new TFile(outFileName.Data(), "recreate");	// File to save results
 	TTree *t = new TTree("data_tree", "Tree fo save");
 	const int count1 = 3, count2 = 13;						// Numbers of lines to skip in test.f14
 	const double pi = 3.1415926;
