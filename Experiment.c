@@ -43,6 +43,7 @@ void Experiment::Loop()
 	if (fChain == 0) return;
 
 	Long64_t nentries = fChain->GetEntriesFast();
+	cout << nentries<< endl;
 	TFile *MyFile = new TFile("plots.root", "recreate");	// File to save results
 	// Histogramms for transverse momentums
 	TH1D *HistPi = new TH1D("HistPi", "", 100, 0, 5);	// Pions
@@ -90,6 +91,8 @@ void Experiment::Loop()
 	for (Long64_t jentry=0; jentry<nentries;jentry++) {
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
+		fChain->GetEntry(jentry);
+		//cout << r0[0] << endl;
 		for (Int_t i = 0; i<n_particles; i++) {
 			rx1=rx[i]; ry1=ry[i];
 			rx[i] = rx1*cos(psiRp)+ry1*sin(psiRp);
@@ -108,6 +111,7 @@ void Experiment::Loop()
 			TVector3 p(px[i], py[i], pz[i]);
 			arrP[kx][ky][kz] += p;
 			pt = sqrt(px[i]*px[i] + py[i]*py[i]);
+			//cout<<pt<<endl;
 			// Draw histogramms for different particles
 			switch (pid[i]) {
 			case 3101:
