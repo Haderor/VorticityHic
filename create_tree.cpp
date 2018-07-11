@@ -1,3 +1,4 @@
+// Reads events from test.f14 of urqmd
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -14,42 +15,61 @@ int main() {
 		cout << "Attached file was not opened!" << endl;
 		exit(15);
 	}
+
 	string str;
 	stringstream ss;
 	TFile *MyFile = new TFile("tree.root", "recreate");	// File to save results
 	TTree *t = new TTree("data_tree", "Tree fo save");
 	const int count1 = 3, count2 = 13;						// Numbers of lines to skip in test.f14
 	const double pi = 3.1415926;
-        double psiRp, rx1, ry1, px1, py1;
-	const int n = 1000;
-	int n_particles, time, pid[n], ityp[n], i3[n], ichg[n], lcl[n], ncl[n], orr[n];
-	double r0[n], rx[n], ry[n], rz[n], p0[n], px[n], py[n], pz[n], m[n], imp;		// Data of a particle in an event
+        const int n = 2000;
 
-	// Data for randomization of angle
-        TDatime* ti = new TDatime();
-	TRandom3* fi = new TRandom3(ti->GetDate()*ti->GetTime());
+	int n_particles;
+	int time;
+        double r0[n];
+	double rx[n];
+	double ry[n];
+	double rz[n];
+	double p0[n];
+	double px[n];
+	double py[n];
+	double pz[n];
+	double m[n];
+	double psiRp;
+	double imp;
+	int pid[n];
+	int ityp[n];
+	int i3[n];
+	int ichg[n];
+	int lcl[n];
+	int ncl[n];
+	int orr[n];
 
 	// Create branches of the tree
-	t->Branch("n_particles", &n_particles);
-	t->Branch("time", &time);
-	t->Branch("r0", r0, "");
-	t->Branch("rx", rx, "");
-	t->Branch("ry", ry, "");
-	t->Branch("rz", rz, "");
-	t->Branch("p0", p0, "");
-	t->Branch("px", px, "");
-	t->Branch("py", py, "");
-	t->Branch("pz", pz, "");
-	t->Branch("m", m, "");
-	t->Branch("psiRp", &psiRp);
-	t->Branch("pid", pid, "");
-	t->Branch("ityp", ityp);
-	t->Branch("i3", i3);
-	t->Branch("ichg", ichg);
-	t->Branch("lcl", lcl);
-	t->Branch("ncl", ncl);
-	t->Branch("orr", orr);
-	t->Branch("imp", &imp);
+	t->Branch("n_particles", &n_particles, "n_particles/I");
+	t->Branch("time", &time, "time/D");
+	t->Branch("r0", r0, "r0[n_particles]/D");
+	t->Branch("rx", rx, "rx[n_particles]/D");
+	t->Branch("ry", ry, "ry[n_particles]/D");
+	t->Branch("rz", rz, "rz[n_particles]/D");
+	t->Branch("p0", p0, "p0[n_particles]/D");
+	t->Branch("px", px, "px[n_particles]/D");
+	t->Branch("py", py, "py[n_particles]/D");
+	t->Branch("pz", pz, "pz[n_particles]/D");
+	t->Branch("m", m, "m[n_particles]/D");
+	t->Branch("psiRp", &psiRp, "psiRp/D");
+	t->Branch("pid", pid, "pid[n_particles]/I");
+	t->Branch("ityp", ityp, "ityp[n_particles]/I");
+	t->Branch("i3", i3, "i3[n_particles]/I");
+	t->Branch("ichg", ichg, "ichg[n_particles]/I");
+	t->Branch("lcl", lcl, "lcl[n_particles]/I");
+	t->Branch("ncl", ncl, "ncl[n_particles]/I");
+	t->Branch("orr", orr, "orr[n_particles]/I");
+	t->Branch("imp", &imp, "imp/D");
+
+        // Data for randomization of angle
+        TDatime* ti = new TDatime();
+        TRandom3* fi = new TRandom3(ti->GetDate()*ti->GetTime());
 
 	// Loop on events
 	while(!fin.eof()) {
