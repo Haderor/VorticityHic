@@ -10,6 +10,7 @@
 #include "TGraph.h"
 #include "TMath.h"
 #include "TLorentzVector.h"
+#include "TProfile.h"
 #include <cmath>
 #include <iostream>
 
@@ -68,7 +69,13 @@ void Experiment::Loop()
 
 	TH1D *HistEtaPi = new TH1D("HistEtaPi", "", 200, -5, 5);	// Pions pseudorapidiyu
 	TH1D *HistEtaPr = new TH1D("HistEtaPr", "", 200, -5, 5);	// Protons pseudorapidity
-    
+
+    TProfile *v1Pi = new TProfile("v1Pi", "", 100, -5, 5); // Pions v1
+    TProfile *v2Pi = new TProfile("v2Pi", "", 100, -5, 5); // Pions v2
+
+    TProfile *v1Pr = new TProfile("v1Pr", "", 100, -5, 5); // Protons v1
+    TProfile *v2Pr = new TProfile("v2Pr", "", 100, -5, 5); // Protons v2
+
 
 	Double_t rx1, ry1, px1, py1, pt, fi, rap, eta;	//Temporary storage for coordinates and momentum
 	Double_t X, Y, Z;		// Limits for coordinates
@@ -140,10 +147,7 @@ void Experiment::Loop()
             TLorentzVector pL(p, p0[i]);
 			arrP[kx][ky][kz] += p;
 			pt = sqrt(px[i]*px[i] + py[i]*py[i]); //transverse momentum
-            if (pt - p.Pt() != 0) {
-                cout << "eggor" << endl;
-            }
-			//cout<<pt<<endl;
+
 			// Draw histogramms for different particles
 			switch (pid[i]) {
 			case 3101:
@@ -151,6 +155,8 @@ void Experiment::Loop()
 				arrPPi[kx][ky][kz] += p;
                 HistRapPi->Fill(pL.Rapidity());
                 HistEtaPi->Fill(pL.Eta());
+                v1Pi->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+                v2Pi->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
 				HistPi->Fill(pt);
 				break;
 			case 3106:
@@ -161,6 +167,8 @@ void Experiment::Loop()
                 arrPPr[kx][ky][kz] += p;
                 HistRapPr->Fill(pL.Rapidity());
                 HistEtaPr->Fill(pL.Eta());
+                v1Pr->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+                v2Pr->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
 				HistPr->Fill(pt);
 				break;
 			case 2027:
@@ -273,8 +281,12 @@ void Experiment::Loop()
     HistFi->Write();
     HistRapPi->Write();
     HistEtaPi->Write();
+    v1Pi->Write();
+    v2Pi->Write();
     HistRapPr->Write();
     HistEtaPr->Write();
+    v1Pr->Write();
+    v2Pr->Write();
     HistCFiPsi->Write();
     HistSFiPsi->Write();
     HistFiPsi->Write();
