@@ -1,4 +1,4 @@
-#include "Experiment.C"
+#include "Experiment.c"
 #include <iostream>
 
 int main() {
