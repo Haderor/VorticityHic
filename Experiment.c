@@ -9,6 +9,7 @@
 #include "TGraph2D.h"
 #include "TGraph.h"
 #include "TMath.h"
+#include "TLorentzVector.h"
 #include <cmath>
 #include <iostream>
 
@@ -51,16 +52,25 @@ void Experiment::Loop()
 	TH1D *HistKa = new TH1D("HistKa", "", 100, 0, 5);	// Kaon
 	TH1D *HistPr = new TH1D("HistPr", "", 100, 0, 5);	// Proton
 	TH1D *HistLa = new TH1D("HistLa", "", 100, 0, 5);	// Lambda
+
     TH1D *HistPsiRp = new TH1D("HistPsiRp", "", 100, 0, 6.3);	// psiRp
-    TH1D *HistFi = new TH1D("HistFi", "", 100, 0, 4);	// Angle between P and Px
+
+    TH1D *HistFi = new TH1D("HistFi", "", 100, 0, 4);	// Angle fi between P and Px
     TH1D *HistCFi = new TH1D("HistCFi", "", 100, -1, 1);	// cos(fi)
     TH1D *HistSFi = new TH1D("HistSFi", "", 100, -1, 1);	// sin(fi)
+
     TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 100, 0, 4);	// Fi-Psi
     TH1D *HistCFiPsi = new TH1D("HistCFiPsi", "", 100, -1, 1);	// cos(Fi-Psi)
     TH1D *HistSFiPsi = new TH1D("HistSFiPsi", "", 100, -1, 1);	// sin(Fi-Psi)
+
+	TH1D *HistRapPi = new TH1D("HistRapPi", "", 200, -5, 5);	// Pions rapidity
+	TH1D *HistRapPr = new TH1D("HistRapPr", "", 200, -5, 5);	// Protons rapidity
+
+	TH1D *HistEtaPi = new TH1D("HistEtaPi", "", 200, -5, 5);	// Pions pseudorapidiyu
+	TH1D *HistEtaPr = new TH1D("HistEtaPr", "", 200, -5, 5);	// Protons pseudorapidity
     
 
-	Double_t rx1, ry1, px1, py1, pt, fi;	//Temporary storage for coordinates and momentum
+	Double_t rx1, ry1, px1, py1, pt, fi, rap, eta;	//Temporary storage for coordinates and momentum
 	Double_t X, Y, Z;		// Limits for coordinates
 	X = Y = Z = 200.0;
 	Double_t dx, dy, dz;	// Splitting characteristic
@@ -127,22 +137,30 @@ void Experiment::Loop()
 			// Change energy and momentum
 			arrE[kx][ky][kz] += p0[i];
 			TVector3 p(px[i], py[i], pz[i]);
+            TLorentzVector pL(p, p0[i]);
 			arrP[kx][ky][kz] += p;
-			pt = sqrt(px[i]*px[i] + py[i]*py[i]);
+			pt = sqrt(px[i]*px[i] + py[i]*py[i]); //transverse momentum
+            if (pt - p.Pt() != 0) {
+                cout << "eggor" << endl;
+            }
 			//cout<<pt<<endl;
 			// Draw histogramms for different particles
 			switch (pid[i]) {
 			case 3101:
 				arrEPi[kx][ky][kz] += p0[i];
 				arrPPi[kx][ky][kz] += p;
+                HistRapPi->Fill(pL.Rapidity());
+                HistEtaPi->Fill(pL.Eta());
 				HistPi->Fill(pt);
 				break;
 			case 3106:
 				HistKa->Fill(pt);
 				break;
 			case 3001:
-                                arrEPr[kx][ky][kz] += p0[i];
-                                arrPPr[kx][ky][kz] += p;
+                arrEPr[kx][ky][kz] += p0[i];
+                arrPPr[kx][ky][kz] += p;
+                HistRapPr->Fill(pL.Rapidity());
+                HistEtaPr->Fill(pL.Eta());
 				HistPr->Fill(pt);
 				break;
 			case 2027:
@@ -253,6 +271,10 @@ void Experiment::Loop()
 	HistPr->Write();
 	HistLa->Write();
     HistFi->Write();
+    HistRapPi->Write();
+    HistEtaPi->Write();
+    HistRapPr->Write();
+    HistEtaPr->Write();
     HistCFiPsi->Write();
     HistSFiPsi->Write();
     HistFiPsi->Write();
