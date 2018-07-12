@@ -1,9 +1,31 @@
 #include "Experiment.c"
 #include <iostream>
 
-int main() {
+int main(int argc, char** argv) {
     
-     TFile f("/home/verbarius/Work1/tree.root", "READ");
+	TString inFileName, outFileName;
+
+	if (argc < 3){
+		std::cerr << "./main -i INPUTFILE" << std::endl;
+		return 10;
+	}
+	
+	for (int i=1; i<argc; i++){
+		if (std::string(argv[i]) != "-i"){
+			std::cerr << "\n[ERROR]: Unknown parameter: " << i << ": " << argv[i] << std::endl;
+			return 10;
+		}else{
+			if (std::string(argv[i]) == "-i" && i!=argc-1){
+				inFileName = argv[++i];
+			}
+			if (std::string(argv[i]) == "-i" && i==argc-1){
+				std::cerr << "\n[ERROR]: Input file name was not specified!" << std::endl;
+				return 20;
+			}
+		}
+	}
+
+     TFile f(inFileName.Data(), "READ");
      if (!f.IsOpen()) {
         std::cout << "File was not opened!" << std::endl;
      }

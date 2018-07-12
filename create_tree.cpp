@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 	TString inFileName, outFileName;
 
 	if (argc < 5){
-		std::cerr << "./main -i INPUTFILE -o IUTPUTFILE" << std::endl;
+		std::cerr << "./convert -i INPUTFILE -o OUTPUTFILE" << std::endl;
 		return 10;
 	}
 	
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 			if (std::string(argv[i]) == "-o" && i!=argc-1){
 				outFileName = argv[++i];
 			}
-			if (std::string(argv[i]) == "-i" && i==argc-1){
+			if (std::string(argv[i]) == "-o" && i==argc-1){
 				std::cerr << "\n[ERROR]: Output file name was not specified!" << std::endl;
 				return 21;
 			}
