@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 	TString inFileName, outFileName;
 
 	if (argc < 5){
-		std::cerr << "./main -i INPUTFILE -o OUTPUTFILE" << std::endl;
+		std::cerr << "./convert -i INPUTFILE -o OUTPUTFILE" << std::endl;
 		return 10;
 	}
 
