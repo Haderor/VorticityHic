@@ -7,7 +7,7 @@
 
 #ifndef Experiment_h
 #define Experiment_h
-#define Max_N 2000
+#define Max_N 50000
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -20,8 +20,10 @@ class Experiment {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
+   const char           *fname;    //!
 
    // Declaration of leaf types
+   Int_t           n_event;
    Int_t           n_particles;
    Double_t        time;
    Double_t        r0[Max_N];   //[n_particles]
@@ -44,6 +46,7 @@ public :
    Double_t        imp;
 
    // List of branches
+   TBranch        *b_n_event;   //!
    TBranch        *b_n_particles;   //!
    TBranch        *b_time;   //!
    TBranch        *b_r0;   //!
@@ -65,7 +68,7 @@ public :
    TBranch        *b_orr;   //!
    TBranch        *b_imp;   //!
 
-   Experiment(TTree *tree=0);
+   Experiment(TTree *tree=0, const char *name = (char*)"plots.root");
    virtual ~Experiment();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -79,7 +82,7 @@ public :
 #endif
 
 #ifdef Experiment_cxx
-Experiment::Experiment(TTree *tree) : fChain(0) 
+Experiment::Experiment(TTree *tree, const char *name) : fChain(0), fname(name)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -135,6 +138,7 @@ void Experiment::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
+   fChain->SetBranchAddress("n_event", &n_event, &b_n_event);
    fChain->SetBranchAddress("n_particles", &n_particles, &b_n_particles);
    fChain->SetBranchAddress("time", &time, &b_time);
    fChain->SetBranchAddress("r0", r0, &b_r0);

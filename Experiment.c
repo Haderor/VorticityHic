@@ -46,23 +46,23 @@ void Experiment::Loop()
 	if (fChain == 0) return;
 
 	Long64_t nentries = fChain->GetEntriesFast();
-	cout << nentries<< endl;
-	TFile *MyFile = new TFile("plots.root", "recreate");	// File to save results
+	TFile *MyFile = new TFile(fname, "recreate");	// File to save results
+
 	// Histogramms for transverse momentums
 	TH1D *HistPi = new TH1D("HistPi", "", 100, 0, 5);	// Pions
 	TH1D *HistKa = new TH1D("HistKa", "", 100, 0, 5);	// Kaon
 	TH1D *HistPr = new TH1D("HistPr", "", 100, 0, 5);	// Proton
 	TH1D *HistLa = new TH1D("HistLa", "", 100, 0, 5);	// Lambda
 
-    TH1D *HistPsiRp = new TH1D("HistPsiRp", "", 100, 0, 6.3);	// psiRp
+    	TH1D *HistPsiRp = new TH1D("HistPsiRp", "", 100, 0, 6.3);	// psiRp
 
-    TH1D *HistFi = new TH1D("HistFi", "", 100, 0, 4);	// Angle fi between P and Px
-    TH1D *HistCFi = new TH1D("HistCFi", "", 100, -1, 1);	// cos(fi)
-    TH1D *HistSFi = new TH1D("HistSFi", "", 100, -1, 1);	// sin(fi)
+    	TH1D *HistFi = new TH1D("HistFi", "", 100, 0, 4);	// Angle fi between P and Px
+    	TH1D *HistCFi = new TH1D("HistCFi", "", 100, -1, 1);	// cos(fi)
+    	TH1D *HistSFi = new TH1D("HistSFi", "", 100, -1, 1);	// sin(fi)
 
-    TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 100, 0, 4);	// Fi-Psi
-    TH1D *HistCFiPsi = new TH1D("HistCFiPsi", "", 100, -1, 1);	// cos(Fi-Psi)
-    TH1D *HistSFiPsi = new TH1D("HistSFiPsi", "", 100, -1, 1);	// sin(Fi-Psi)
+    	TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 100, 0, 4);	// Fi-Psi
+    	TH1D *HistCFiPsi = new TH1D("HistCFiPsi", "", 100, -1, 1);	// cos(Fi-Psi)
+    	TH1D *HistSFiPsi = new TH1D("HistSFiPsi", "", 100, -1, 1);	// sin(Fi-Psi)
 
 	TH1D *HistRapPi = new TH1D("HistRapPi", "", 200, -5, 5);	// Pions rapidity
 	TH1D *HistRapPr = new TH1D("HistRapPr", "", 200, -5, 5);	// Protons rapidity
@@ -70,18 +70,17 @@ void Experiment::Loop()
 	TH1D *HistEtaPi = new TH1D("HistEtaPi", "", 200, -5, 5);	// Pions pseudorapidiyu
 	TH1D *HistEtaPr = new TH1D("HistEtaPr", "", 200, -5, 5);	// Protons pseudorapidity
 
-    TProfile *v1Pi = new TProfile("v1Pi", "", 100, -5, 5); // Pions v1
-    TProfile *v2Pi = new TProfile("v2Pi", "", 100, -5, 5); // Pions v2
+    	TProfile *v1Pi = new TProfile("v1Pi", "", 100, -5, 5); // Pions v1
+    	TProfile *v2Pi = new TProfile("v2Pi", "", 100, -5, 5); // Pions v2
 
-    TProfile *v1Pr = new TProfile("v1Pr", "", 100, -5, 5); // Protons v1
-    TProfile *v2Pr = new TProfile("v2Pr", "", 100, -5, 5); // Protons v2
-
+    	TProfile *v1Pr = new TProfile("v1Pr", "", 100, -5, 5); // Protons v1
+    	TProfile *v2Pr = new TProfile("v2Pr", "", 100, -5, 5); // Protons v2
 
 	Double_t rx1, ry1, px1, py1, pt, fi, rap, eta;	//Temporary storage for coordinates and momentum
 	Double_t X, Y, Z;		// Limits for coordinates
 	X = Y = Z = 200.0;
 	Double_t dx, dy, dz;	// Splitting characteristic
-	dx = dy = dz = 15.0;
+	dx = dy = dz = 20.0;
 	int nx, ny, nz;         // Number of segmentss
         nx = 2*(X/dx) + 1;
         ny = 2*(Y/dy) + 1;
@@ -118,22 +117,24 @@ void Experiment::Loop()
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
 		fChain->GetEntry(jentry);
-        HistPsiRp->Fill(psiRp);
-		//cout << r0[0] << endl;
+		if(time != 200.0) {
+			continue;
+		}
+        	HistPsiRp->Fill(psiRp);
 		for (Int_t i = 0; i<n_particles; i++) {
 			rx1=rx[i]; ry1=ry[i];
 			rx[i] = rx1*cos(psiRp)+ry1*sin(psiRp);
 			ry[i] = -rx1*sin(psiRp)+ry1*cos(psiRp);
 			px1=px[i]; py1=py[i];
-            px[i] = px1*cos(psiRp)+py1*sin(psiRp);
-            py[i] = -px1*sin(psiRp)+py1*cos(psiRp);
-            fi = TMath::ATan2(py[i], px[i]);
-            HistFi->Fill(TMath::ACos(TMath::Cos(fi)));
-            HistCFi->Fill(TMath::Cos(fi));
-            HistSFi->Fill(TMath::Sin(fi));
-            HistFiPsi->Fill(TMath::ACos(TMath::Cos(fi-psiRp)));
-            HistCFiPsi->Fill(TMath::Cos(fi - psiRp));
-            HistSFiPsi->Fill(TMath::Sin(fi - psiRp));
+            		px[i] = px1*cos(psiRp)+py1*sin(psiRp);
+            		py[i] = -px1*sin(psiRp)+py1*cos(psiRp);
+            		fi = TMath::ATan2(py[i], px[i]);
+            		HistFi->Fill(TMath::ACos(TMath::Cos(fi)));
+            		HistCFi->Fill(TMath::Cos(fi));
+            		HistSFi->Fill(TMath::Sin(fi));
+            		HistFiPsi->Fill(TMath::ACos(TMath::Cos(fi-psiRp)));
+            		HistCFiPsi->Fill(TMath::Cos(fi - psiRp));
+           		HistSFiPsi->Fill(TMath::Sin(fi - psiRp));
 
 			// Determine cell of particle
 			int kx, ky, kz;
@@ -144,7 +145,7 @@ void Experiment::Loop()
 			// Change energy and momentum
 			arrE[kx][ky][kz] += p0[i];
 			TVector3 p(px[i], py[i], pz[i]);
-            TLorentzVector pL(p, p0[i]);
+            		TLorentzVector pL(p, p0[i]);
 			arrP[kx][ky][kz] += p;
 			pt = sqrt(px[i]*px[i] + py[i]*py[i]); //transverse momentum
 
@@ -153,28 +154,28 @@ void Experiment::Loop()
 			case 3101:
 				arrEPi[kx][ky][kz] += p0[i];
 				arrPPi[kx][ky][kz] += p;
-                HistRapPi->Fill(pL.Rapidity());
-                HistEtaPi->Fill(pL.Eta());
-                v1Pi->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-                v2Pi->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+				HistRapPi->Fill(pL.Rapidity());
+            			HistEtaPi->Fill(pL.Eta());
+               			v1Pi->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+               			v2Pi->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
 				HistPi->Fill(pt);
 				break;
 			case 3106:
 				HistKa->Fill(pt);
 				break;
 			case 3001:
-                arrEPr[kx][ky][kz] += p0[i];
-                arrPPr[kx][ky][kz] += p;
-                HistRapPr->Fill(pL.Rapidity());
-                HistEtaPr->Fill(pL.Eta());
-                v1Pr->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-                v2Pr->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+               			arrEPr[kx][ky][kz] += p0[i];
+               			arrPPr[kx][ky][kz] += p;
+               			HistRapPr->Fill(pL.Rapidity());
+               			HistEtaPr->Fill(pL.Eta());
+               			v1Pr->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+               			v2Pr->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
 				HistPr->Fill(pt);
 				break;
 			case 2027:
 				HistLa->Fill(pt);
 				break;
-			}	
+			}
 		}
 		//nb = fChain->GetEntry(jentry);   nbytes += nb;
 		//if (Cut(ientry) < 0) continue;
@@ -278,20 +279,20 @@ void Experiment::Loop()
 	HistKa->Write();
 	HistPr->Write();
 	HistLa->Write();
-    HistFi->Write();
-    HistRapPi->Write();
-    HistEtaPi->Write();
-    v1Pi->Write();
-    v2Pi->Write();
-    HistRapPr->Write();
-    HistEtaPr->Write();
-    v1Pr->Write();
-    v2Pr->Write();
-    HistCFiPsi->Write();
-    HistSFiPsi->Write();
-    HistFiPsi->Write();
-    HistCFiPsi->Write();
-    HistSFiPsi->Write();
+	HistFi->Write();
+	HistRapPi->Write();
+	HistEtaPi->Write();
+	v1Pi->Write();
+	v2Pi->Write();
+	HistRapPr->Write();
+	HistEtaPr->Write();
+	v1Pr->Write();
+	v2Pr->Write();
+	HistCFiPsi->Write();
+	HistSFiPsi->Write();
+	HistFiPsi->Write();
+	HistCFiPsi->Write();
+	HistSFiPsi->Write();
 	HistPsiRp->Write();
 	MyFile->Write();
 
