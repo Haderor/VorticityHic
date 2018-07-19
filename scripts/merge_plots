@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Merge plots with names from $1 lying in directory plots
+
+str1=""
+for str in $(cat $1)
+	do
+		str1="$str1 plots/plot$str"
+	done
+hadd result.root $str1
