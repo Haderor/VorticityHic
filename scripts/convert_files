@@ -1,0 +1,12 @@
+#!/bin/bash
+# Convert files with names from $1 to trees in directory forest
+
+
+for str in $(cat $1)
+    do
+    str1=${str%.f14}
+    str2=${str1#/mnt/*/urqmd_}
+    qsub -q medium exe_convert_files.sh -F "${str} forest/${str2}.root"
+    sleep 1
+    done
+

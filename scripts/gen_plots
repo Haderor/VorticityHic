@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Draw plots for all trees in directory forest that have names from $1 and put plots to directory plots
+
+for str in $(cat $1)
+    do
+    qsub -q medium exe_gen_plots.sh -F "forest/${str} plots/plot${str}"
+    sleep 1
+    done
+
+
+
+
+
+
+
