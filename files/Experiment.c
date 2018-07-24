@@ -60,7 +60,7 @@ void Experiment::Loop()
     	TH1D *HistCFi = new TH1D("HistCFi", "", 500, -1, 1);	// cos(fi)
     	TH1D *HistSFi = new TH1D("HistSFi", "", 500, -1, 1);	// sin(fi)
 
-    	TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 500, 0, 4);	// Fi-Psi
+    	TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 500, 0, 4);		// Fi-Psi
     	TH1D *HistCFiPsi = new TH1D("HistCFiPsi", "", 500, -1, 1);	// cos(Fi-Psi)
     	TH1D *HistSFiPsi = new TH1D("HistSFiPsi", "", 500, -1, 1);	// sin(Fi-Psi)
 
@@ -72,6 +72,63 @@ void Experiment::Loop()
 
     	TProfile *v1Pi = new TProfile("v1Pi", "", 500, -5, 5); // Pions v1
     	TProfile *v2Pi = new TProfile("v2Pi", "", 500, -5, 5); // Pions v2
+
+        MyFile->mkdir("Small parameter");
+        MyFile->cd("Small parameter");
+        TProfile *PtPtSmall = new TProfile("PtPtSmall", "", 50, 0.0, 3.0);
+        PtPtSmall->GetXaxis()->SetTitle("pt, GeV/c");
+        PtPtSmall->GetYaxis()->SetTitle("pt, GeV/c");
+        TProfile *v1PtPrSmall = new TProfile("v1PtPrSmall", "", 50, 0.0, 3.0);
+        v1PtPrSmall->GetXaxis()->SetTitle("pt, GeV/c");
+        v1PtPrSmall->GetYaxis()->SetTitle("v1");
+        TProfile *v2PtPrSmall = new TProfile("v2PtPrSmall", "", 50, 0.0, 3.0);
+        v2PtPrSmall->GetXaxis()->SetTitle("pt, GeV/c");
+        v2PtPrSmall->GetYaxis()->SetTitle("v2");
+        TProfile *v1RapPrSmall = new TProfile("v1RapPrSmall", "", 50, -1.2, 1.2);
+        v1RapPrSmall->GetXaxis()->SetTitle("rapidity");
+        v1RapPrSmall->GetYaxis()->SetTitle("v1");
+        TProfile *v2RapPrSmall = new TProfile("v2RapPrSmall", "", 50, -1.2, 1.2);
+        v1RapPrSmall->GetXaxis()->SetTitle("rapidity");
+        v1RapPrSmall->GetYaxis()->SetTitle("v2");
+	MyFile->cd("../");
+
+        MyFile->mkdir("Mid parameter");
+        MyFile->cd("Mid parameter");
+        TProfile *PtPtMid = new TProfile("PtPtMid", "", 50, 0.0, 3.0);
+        PtPtMid->GetXaxis()->SetTitle("pt, GeV/c");
+        PtPtMid->GetYaxis()->SetTitle("pt, GeV/c");
+        TProfile *v1RapPrMid = new TProfile("v1RapPrMid", "", 50, -1.2, 1.2);
+        v1RapPrMid->GetXaxis()->SetTitle("pt, GeV/c");
+        v1RapPrMid->GetYaxis()->SetTitle("v1");
+        TProfile *v2RapPrMid = new TProfile("v2RapPrMid", "", 50, -1.2, 1.2);
+        v2RapPrMid->GetXaxis()->SetTitle("pt, GeV/c");
+        v2RapPrMid->GetYaxis()->SetTitle("v2");
+        TProfile *v1PtPrMid = new TProfile("v1PtPrMid", "", 50, 0.0, 3.0);
+        v1PtPrMid->GetXaxis()->SetTitle("pt, GeV/c");
+        v1PtPrMid->GetYaxis()->SetTitle("v1");
+        TProfile *v2PtPrMid = new TProfile("v2PtPrMid", "", 50, 0.0, 3.0);
+        v2PtPrMid->GetXaxis()->SetTitle("pt, GeV/c");
+        v2PtPrMid->GetYaxis()->SetTitle("v2");
+        MyFile->cd("../");
+
+        MyFile->mkdir("Big parameter");
+        MyFile->cd("Big parameter");
+        TProfile *PtPtBig = new TProfile("PtPtBig", "", 50, 0.0, 3.0);
+        PtPtBig->GetXaxis()->SetTitle("pt, GeV/c");
+        PtPtBig->GetYaxis()->SetTitle("pt, GeV/c");
+        TProfile *v1RapPrBig = new TProfile("v1RapPrBig", "", 50, -1.2, 1.2);
+        v1RapPrBig->GetXaxis()->SetTitle("pt, GeV/c");
+        v1RapPrBig->GetYaxis()->SetTitle("v1");
+        TProfile *v2RapPrBig = new TProfile("v2RapPrBig", "", 50, -1.2, 1.2);
+        v2RapPrBig->GetXaxis()->SetTitle("pt, GeV/c");
+        v2RapPrBig->GetYaxis()->SetTitle("v2");
+        TProfile *v1PtPrBig = new TProfile("v1PtPrBig", "", 50, 0.0, 3.0);
+        v1PtPrBig->GetXaxis()->SetTitle("pt, GeV/c");
+        v1PtPrBig->GetYaxis()->SetTitle("v1");
+        TProfile *v2PtPrBig = new TProfile("v2PtPrBig", "", 50, 0.0, 3.0);
+        v2PtPrBig->GetXaxis()->SetTitle("pt, GeV/c");
+        v2PtPrBig->GetYaxis()->SetTitle("v2");
+	MyFile->cd("../");
 
     	TProfile *v1Pr = new TProfile("v1Pr", "", 500, -5, 5); // Protons v1
     	TProfile *v2Pr = new TProfile("v2Pr", "", 500, -5, 5); // Protons v2
@@ -88,6 +145,7 @@ void Experiment::Loop()
         nz = 2*(Z/dz) + 1;
 
         TProfile *vRo = new TProfile("vRo", "", 500, 0, sqrt(nx*nx/4.0 + ny*ny/4.0));       // Velocity from ro
+	vRo->GetXaxis()->SetTitle("r, cells");
 
 	TVector3 vNull(0, 0, 0);	// Null vector
 
@@ -121,9 +179,6 @@ void Experiment::Loop()
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
 		fChain->GetEntry(jentry);
-		if(time != t0) {
-			continue;
-		}
         	HistPsiRp->Fill(psiRp);
 		for (Int_t i = 0; i<n_particles; i++) {
 			rx1=rx[i]; ry1=ry[i];
@@ -132,6 +187,14 @@ void Experiment::Loop()
 			px1=px[i]; py1=py[i];
             		px[i] = px1*cos(psiRp)+py1*sin(psiRp);
             		py[i] = -px1*sin(psiRp)+py1*cos(psiRp);
+			TVector3 p(px[i], py[i], pz[i]);
+                        TLorentzVector pL(p, p0[i]);
+
+			// Cuts for particles
+			if ((p.Pt() < 0.2) || (3.0 < p.Pt()) || (pL.Eta() < -1.2) || (1.2 < pL.Eta())) {
+				continue;
+			}
+
             		fi = TMath::ATan2(py[i], px[i]);
             		HistFi->Fill(TMath::ACos(TMath::Cos(fi)));
             		HistCFi->Fill(TMath::Cos(fi));
@@ -148,8 +211,6 @@ void Experiment::Loop()
 
 			// Change energy and momentum
 			arrE[kx][ky][kz] += p0[i];
-			TVector3 p(px[i], py[i], pz[i]);
-            		TLorentzVector pL(p, p0[i]);
 			arrP[kx][ky][kz] += p;
 			pt = sqrt(px[i]*px[i] + py[i]*py[i]); //transverse momentum
 
@@ -174,6 +235,48 @@ void Experiment::Loop()
                			HistEtaPr->Fill(pL.Eta());
                			v1Pr->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
                			v2Pr->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+				// Draw v2 for protons dependence in rapidity
+				if ((0.2 < pt) && (pt < 3.0)) {
+					if (imp < 3.0) {
+						PtPtSmall->Fill(pt, pt);
+						v2RapPrSmall->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+					}
+					else if ((6.0 < imp) && (imp < 7.0)) {
+                                                PtPtMid->Fill(pt, pt);
+						v2RapPrMid->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+					}
+					else if ((10.0 < imp) && (imp < 12.0)) {
+                                                PtPtBig->Fill(pt, pt);
+                                        	v2RapPrBig->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+					}
+				}
+				if((-1.0 < pL.Rapidity()) && (pL.Rapidity() < 1.0)) {
+		                        if (imp < 3.0) {
+                                                v2PtPrSmall->Fill(pt, TMath::Cos(2*(fi - psiRp)));
+                                        }
+                                        else if ((6.0 < imp) && (imp < 7.0)) {
+                                                v2PtPrMid->Fill(pt, TMath::Cos(2*(fi - psiRp)));
+                                        }
+                                        else if ((10.0 < imp) && (imp < 12.0)) {
+                                                v2PtPrBig->Fill(pt, TMath::Cos(2*(fi - psiRp)));
+                                        }
+
+				}
+                                if ((-1.0 < pL.Rapidity()) && (pL.Rapidity() < 1.0) && ((pL.Rapidity() < -0.2) || (0.2 < pL.Rapidity()))) {
+                                        if (imp < 3.0) {
+                                                v1PtPrSmall->Fill(pt, TMath::Cos(fi - psiRp));
+                                                v1RapPrSmall->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+                                        }
+                                        else if ((6.0 < imp) && (imp < 7.0)) {
+                                                v1PtPrMid->Fill(pt, TMath::Cos(fi - psiRp));
+                                                v1RapPrMid->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+                                        }
+                                        else if ((10.0 < imp) && (imp < 12.0)) {
+                                                v1PtPrBig->Fill(pt, TMath::Cos(fi - psiRp));
+                                                v1RapPrBig->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+                                        }
+                                }
+
 				HistPr->Fill(pt);
 				break;
 			case 2027:
@@ -186,8 +289,12 @@ void Experiment::Loop()
 	}
 	// Histograms for velicity and vorticity
         TH2D *HistV = new TH2D("HistV", "", nx, 0, nx, ny, 0, ny);
+	HistV->GetXaxis()->SetTitle("X, cells");
+        HistV->GetYaxis()->SetTitle("Y, cells");
         TH2D *HistVW = new TH2D("HistVW", "", nx, 0, nx, ny, 0, ny);
         TH2D *HistW = new TH2D("HistW", "", nx, 0, nx, ny, 0, ny);
+        HistV->GetXaxis()->SetTitle("X, cells");
+        HistV->GetYaxis()->SetTitle("Y, cells");
         TH2D *HistPiV = new TH2D("HistPiV", "", nx, 0, nx, ny, 0, ny);
         TH2D *HistPrV = new TH2D("HistPrV", "", nx, 0, nx, ny, 0, ny);
 
@@ -318,21 +425,13 @@ void Experiment::Loop()
 	HistPsiRp->Write();
 	vRo->Write();
 
-	MyFile->Write();
-
-	// Draw graph velocity and vorticity
-	TGraph2D *V = new TGraph2D();
-	TGraph2D *W = new TGraph2D();
-        int N = 0;
+	// Fill histograms
 	int Nz = 5;
 	Double_t Hubble = 0.0025*dx;
 	for(int x = 0; x < nx; x++) {
                 for(int y = 0; y < ny; y++) {
-                        W->SetPoint(N, x, y, sqrt(arrW[x][y][Nz]*arrW[x][y][Nz]));
-			V->SetPoint(N, x, y, sqrt(arrV[x][y][Nz]*arrV[x][y][Nz]));
-                        N++;
-			HistV->Fill(x, y, sqrt(arrV[x][y][Nz]*arrV[x][y][Nz]));
-			TVector3 vH(Hubble*x, Hubble*y, 0);
+			HistV->Fill(x, y, sqrt(arrV[x][y][Nz]*arrV[x][y][Nz])/986);
+			TVector3 vH(Hubble*(x - nx/2.0), Hubble*(y - ny/2.0), 0);
 			HistVW->Fill(x, y, sqrt((arrV[x][y][Nz] - vH)*(arrV[x][y][Nz] - vH)));
 			HistW->Fill(x, y, sqrt(arrW[x][y][Nz]*arrW[x][y][Nz]));
                         HistPiV->Fill(x, y, sqrt(arrVPi[x][y][Nz]*arrVPi[x][y][Nz]));
@@ -340,30 +439,33 @@ void Experiment::Loop()
                 }
         }
 
-	// Draw graph v versus distance
-	int x = nx/2;
-	int z = nz/2;
-	double arrVvsRo[ny - 0];
-	double arrRo[ny - 0];
-	for (int y = 0; y < ny; y++) {
-		arrVvsRo[y - 0] = sqrt(arrV[x][y][z]*arrV[x][y][z]);
-		arrRo[y - 0] = y - ny/2;
-	}
-	TGraph *gr = new TGraph(ny - 0, arrRo, arrVvsRo);
-
-        gStyle->SetPalette(1);
-	V->SetTitle("Magnitude of velocity; X; Y; Velocity");
-	W->SetTitle("Magnitude of vorticity; X; Y; Vorticity");
-        V->Write();
-	W->Write();
-	gr->Write();
 	HistV->Write();
 	HistVW->Write();
 	HistW->Write();
         HistPiV->Write();
         HistPrV->Write();
-	MyFile->Close();
-	cout << "Helicity = " << H << endl;
-	cout << "Max_N = " << Max_N << endl;
+	MyFile->Write();
 
+        MyFile->cd("Small parameter");
+        PtPtSmall->Write();
+	v1PtPrSmall->Write();
+        v2PtPrSmall->Write();
+        v1RapPrSmall->Write();
+        v2RapPrSmall->Write();
+	MyFile->cd("../Mid parameter");
+        PtPtMid->Write();
+        v1PtPrMid->Write();
+        v2PtPrMid->Write();
+        v1RapPrMid->Write();
+        v2RapPrMid->Write();
+	MyFile->cd("../Big parameter");
+	PtPtBig->Write();
+	v1RapPrBig->Write();
+        v2RapPrBig->Write();
+        v1PtPrBig->Write();
+        v2PtPrBig->Write();
+        MyFile->cd("../");
+	MyFile->Close();
+
+	cout << "Helicity = " << H << endl;
 }

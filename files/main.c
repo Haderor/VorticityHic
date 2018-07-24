@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
      TFile f(inFileName.Data(), "READ");
      if (!f.IsOpen()) {
         std::cout << "File was not opened!" << std::endl;
+	return 0;
      }
      TTree *t = (TTree *)f.Get("data_tree");
      Experiment h(t, outFileName.Data());
