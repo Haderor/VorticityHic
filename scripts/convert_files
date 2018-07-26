@@ -1,0 +1,12 @@
+#!/bin/bash
+# Convert files with names from $1 to trees in directory forest
+
+
+for str in $(cat $1)
+    do
+    str1=${str%.f14}
+    str2=${str1#/mnt/*ascii_}
+    qsub -q medium exe_convert_files.sh -F "${str} /mnt/pool/rhic/4/verbalune/forest_11.5/${str2}.root"
+    sleep 1.5
+    done
+
