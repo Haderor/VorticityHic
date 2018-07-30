@@ -64,12 +64,7 @@ void Experiment::Loop()
     	TH1D *HistFi = new TH1D("HistFi", "", 500, 0, 4);	// Angle fi between Pt and Px
         TH1D *HistFiPr = new TH1D("HistFiPr", "", 500, 0, 4);       // Angle fi between Pt and Px for protons
 
-    	TH1D *HistCFi = new TH1D("HistCFi", "", 500, -1, 1);	// cos(fi)
-    	TH1D *HistSFi = new TH1D("HistSFi", "", 500, -1, 1);	// sin(fi)
-
     	TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 500, 0, 4);		// Fi-Psi
-    	TH1D *HistCFiPsi = new TH1D("HistCFiPsi", "", 500, -1, 1);	// cos(Fi-Psi)
-    	TH1D *HistSFiPsi = new TH1D("HistSFiPsi", "", 500, -1, 1);	// sin(Fi-Psi)
 
 	TH1D *HistRapPi = new TH1D("HistRapPi", "", 200, -5, 5);	// Pions rapidity
 	TH1D *HistRapPr = new TH1D("HistRapPr", "", 200, -5, 5);	// Protons rapidity
@@ -194,15 +189,7 @@ void Experiment::Loop()
 	TVector3 vNull(0, 0, 0);	// Null vector
 
 	TVector3 arrP[nx][ny][nz], arrPPi[nx][ny][nz], arrPPr[nx][ny][nz];
-	for(Int_t i = 0; i < nx; i++) {
-                for(Int_t j = 0; j < ny; j++) {
-                        for(Int_t k = 0; k < nz; k++) {
-                                arrP[i][j][k] = vNull;	// Set momentum as zero
-				arrPPi[i][j][k] = vNull;
-				arrPPr[i][j][k] = vNull;
-                        }
-                }
-        }
+
 	// Total energy of particles
 	Double_t arrE[nx][ny][nz], arrEPi[nx][ny][nz], arrEPr[nx][ny][nz];
 	for(Int_t i = 0; i < nx; i++) {
@@ -228,21 +215,17 @@ void Experiment::Loop()
 		if (time != t0) {
 			continue;
 		}
-		psiRp = 0.0;
-        	HistPsiRp->Fill(psiRp);
-		if (psiRp != 0) {
-			cout << "error: psiRp = " << psiRp << endl;
-		}
+            HistPsiRp->Fill(psiRp);
+
 		for (Int_t i = 0; i<n_particles; i++) {
-			/*rx1=rx[i]; ry1=ry[i];
+			rx1=rx[i]; ry1=ry[i];
 			rx[i] = rx1*cos(psiRp)+ry1*sin(psiRp);
 			ry[i] = -rx1*sin(psiRp)+ry1*cos(psiRp);
 			px1=px[i]; py1=py[i];
             		px[i] = px1*cos(psiRp)+py1*sin(psiRp);
-            		py[i] = -px1*sin(psiRp)+py1*cos(psiRp);*/
+            		py[i] = -px1*sin(psiRp)+py1*cos(psiRp);
 			TVector3 p(px[i], py[i], pz[i]);
                         TLorentzVector pL(p, p0[i]);
-
 			// Cuts for particles
 			if ((p.Pt() < 0.2) || (3.0 < p.Pt()) || (pL.Eta() < -1.2) || (1.2 < pL.Eta())) {
 				continue;
@@ -250,11 +233,7 @@ void Experiment::Loop()
 
             		fi = TMath::ATan2(py[i], px[i]);
             		HistFi->Fill(TMath::ACos(TMath::Cos(fi)));
-            		HistCFi->Fill(TMath::Cos(fi));
-            		HistSFi->Fill(TMath::Sin(fi));
             		HistFiPsi->Fill(TMath::ACos(TMath::Cos(fi-psiRp)));
-            		HistCFiPsi->Fill(TMath::Cos(fi - psiRp));
-           		HistSFiPsi->Fill(TMath::Sin(fi - psiRp));
 
 			// Determine cell of particle
 			int kx, ky, kz;
@@ -391,7 +370,7 @@ void Experiment::Loop()
         TH2D *HistV = new TH2D("HistV", "", nx, 0, nx, ny, 0, ny);
 	HistV->GetXaxis()->SetTitle("X, cells");
         HistV->GetYaxis()->SetTitle("Y, cells");
-        TH2D *HistVW = new TH2D("HistVW", "", nx, 0, nx, ny, 0, ny);
+        TH2D *HistVW = new TH2D("HistVW", "", nx, 0, nx, ny, 0, ny);       // v - Hr
         TH2D *HistW = new TH2D("HistW", "", nx, 0, nx, ny, 0, ny);
         HistV->GetXaxis()->SetTitle("X, cells");
         HistV->GetYaxis()->SetTitle("Y, cells");
@@ -405,10 +384,7 @@ void Experiment::Loop()
         for(int i = 0; i < nx; i++) {
                 for(int j = 0; j < ny; j++) {
                         for(int k = 0; k < nz; k++) {
-				if((arrE[i][j][k] == 0) && (arrP[i][j][k]*arrP[i][j][k] == 0)) {
-					arrV[i][j][k] = vNull;
-				}
-				else if ((arrE[i][j][k] == 0) && (arrP[i][j][k]*arrP[i][j][k] != 0)) {
+				if ((arrE[i][j][k] == 0) && (arrP[i][j][k]*arrP[i][j][k] != 0)) {
 					cout << "Error: Energy = 0, P != 0 in cell ";
 					cout << "(" << i << "; " << j << "; " << k << "); ";
 					cout <<  "put zero vector here" << endl;
@@ -418,10 +394,7 @@ void Experiment::Loop()
                                 	arrV[i][j][k] = arrP[i][j][k]*(1.0/arrE[i][j][k]);
 				}
 
-                                if((arrEPi[i][j][k] == 0) && (arrPPi[i][j][k]*arrPPi[i][j][k] == 0)) {
-                                        arrVPi[i][j][k] = vNull;
-                                }
-                                else if ((arrEPi[i][j][k] == 0) && (arrPPi[i][j][k]*arrPPi[i][j][k] != 0)) {
+                                if ((arrEPi[i][j][k] == 0) && (arrPPi[i][j][k]*arrPPi[i][j][k] != 0)) {
                                         cout << "Error: Energy = 0, P != 0 in cell ";
                                         cout << "(" << i << "; " << j << "; " << k << "); ";
                                         cout <<  "put zero vector here" << endl;
@@ -430,10 +403,7 @@ void Experiment::Loop()
                                 else {
                                         arrVPi[i][j][k] = arrPPi[i][j][k]*(1.0/arrEPi[i][j][k]);
                                 }
-                                if((arrEPr[i][j][k] == 0) && (arrPPr[i][j][k]*arrPPr[i][j][k] == 0)) {
-                                        arrVPr[i][j][k] = vNull;
-                                }
-                                else if ((arrEPr[i][j][k] == 0) && (arrPPr[i][j][k]*arrP[i][j][k] != 0)) {
+                                if ((arrEPr[i][j][k] == 0) && (arrPPr[i][j][k]*arrP[i][j][k] != 0)) {
                                         cout << "Error: Energy = 0, P != 0 in cell ";
                                         cout << "(" << i << "; " << j << "; " << k << "); ";
                                         cout <<  "put zero vector here" << endl;
@@ -462,22 +432,10 @@ void Experiment::Loop()
 	// Calculation of vorticity and helicity
 	TVector3 arrW[nx][ny][nz];
 	double H = 0.0;
-        for(int i = 0; i < nx; i++) {
-                for(int j = 0; j < ny; j++) {
-                        for(int k = 0; k < nz; k++) {
-                                arrW[i][j][k] = vNull;    // Set vorticity as zero
-                               // arrWPi[i][j][k] = 0.0;
-                               // arrWPr[i][j][k] = 0.0;
-                        }
-                }
-        }
         for(int i = 1; i < nx-1; i++) {
                 for(int j = 1; j < ny-1; j++) {
 			for(int k = 1; k < nz-1; k++) {
-				if (arrV[i][j][k]*arrV[i][j][k] == 0) {
-					arrW[i][j][k] = vNull;
-				}
-				else {
+				if (arrV[i][j][k]*arrV[i][j][k] != 0)  {
 					TVector3 dvi = arrV[i+1][j][k] - arrV[i-1][j][k];
 					//cout << (arrV[i+1][j][k]*arrV[i+1][j][k]) << " " << (arrV[i-1][j][k]*arrV[i-1][j][k]) << endl;
                                 	TVector3 dvj = arrV[i][j+1][k] - arrV[i][j-1][k];
@@ -517,11 +475,7 @@ void Experiment::Loop()
 	v1Pr->Write();
 	v2Pr->Write();
 
-	HistCFiPsi->Write();
-	HistSFiPsi->Write();
 	HistFiPsi->Write();
-	HistCFiPsi->Write();
-	HistSFiPsi->Write();
 	HistPsiRp->Write();
 	vRo->Write();
 

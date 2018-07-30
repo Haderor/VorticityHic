@@ -2,19 +2,19 @@
 
 # Draw plots for all trees in directory forest that have names from $1 and put plots to directory plots
 
-#for str in $(cat $1)
-#    do
-#    qsub -q medium exe_gen_plots.sh -F "forest_11.5/${str} plots_11.5/plot${str}"
-#    sleep 1
-#    done
+for str in $(cat $1)
+    do
+    qsub -q medium exe_gen_plots.sh -F "forest_11.5/${str} plots_11.5/plot${str}"
+    sleep 1
+    done
 
 i=1
 while [[ $i -lt 1000 ]]
         do
                 echo $i
-                qsub -t $[$i]-$[$i+39] -q long exe_gen_plots.sh
+                qsub -t $[$i]-$[$i+39] -q long exe_convert_files.sh
                 let i=i+40
-                sleep 120;
+                sleep 90;
         done
 
 

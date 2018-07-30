@@ -6,6 +6,6 @@ rm -f result.root
 str1=""
 for str in $(cat $1)
 	do
-		str1="$str1 ../plots_11.5/plot$str"
+		str1="$str1 ../plots_11.5/$str"
 	done
 hadd result.root $str1
