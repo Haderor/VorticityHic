@@ -1,7 +1,7 @@
 #define Experiment_cxx
 #include "Experiment.h"
-#include <TStyle.h>
-#include <TCanvas.h>
+#include "TStyle.h"
+#include "TCanvas.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TFile.h"
@@ -13,9 +13,11 @@
 #include "TProfile.h"
 #include <cmath>
 #include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
 using namespace std;
-
 
 void Experiment::Loop()
 {
@@ -44,160 +46,142 @@ void Experiment::Loop()
 //by  b_branchname->GetEntry(ientry); //read only this branch
 
 	if (fChain == 0) return;
-
 	Long64_t nentries = fChain->GetEntriesFast();
 	TFile *MyFile = new TFile(fname, "recreate");	// File to save results
 
-	// Histogramms for transverse momentums
-	TH1D *HistPi = new TH1D("HistPi", "", 500, 0, 5);	// Pions
-	TH1D *HistKa = new TH1D("HistKa", "", 500, 0, 5);	// Kaon
-	TH1D *HistPr = new TH1D("HistPr", "", 500, 0, 5);	// Proton
-        TH1D *HistPrPy = new TH1D("HistPrPy", "", 500, 0, 5);       // Proton Py
-        TH1D *HistPrPx = new TH1D("HistPrPx", "", 500, 0, 5);       // Proton Px
-        TH1D *HistPrPyBig = new TH1D("HistPrPyBig", "", 500, 0, 5);       // Proton Py big paramter
-        TH1D *HistPrPxBig = new TH1D("HistPrPxBig", "", 500, 0, 5);       // Proton Px big parameter
+	// Constants for histograms
+        const Double_t binsY[] = {-1.2, -1.1, -1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2};
+        const Double_t binsPt[] = {0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0};
+        const Int_t NbinsY = 24;
+        const Int_t NbinsPt = 11;
 
-	TH1D *HistLa = new TH1D("HistLa", "", 500, 0, 5);	// Lambda
-
-    	TH1D *HistPsiRp = new TH1D("HistPsiRp", "", 500, 0, 6.3);	// psiRp
-
-    	TH1D *HistFi = new TH1D("HistFi", "", 500, 0, 4);	// Angle fi between Pt and Px
-        TH1D *HistFiPr = new TH1D("HistFiPr", "", 500, 0, 4);       // Angle fi between Pt and Px for protons
-
-    	TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 500, 0, 4);		// Fi-Psi
-
-	TH1D *HistRapPi = new TH1D("HistRapPi", "", 200, -5, 5);	// Pions rapidity
-	TH1D *HistRapPr = new TH1D("HistRapPr", "", 200, -5, 5);	// Protons rapidity
-
-	TH1D *HistEtaPi = new TH1D("HistEtaPi", "", 200, -5, 5);	// Pions pseudorapidiyu
-	TH1D *HistEtaPr = new TH1D("HistEtaPr", "", 200, -5, 5);	// Protons pseudorapidity
-
-    	TProfile *v1Pi = new TProfile("v1Pi", "", 500, -5, 5); // Pions v1
-    	TProfile *v2Pi = new TProfile("v2Pi", "", 500, -5, 5); // Pions v2
-
-	const Double_t binsY[] = {-1.2, -1.1, -1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2};
-	const Double_t binsPt[] = {0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0};
-	const Int_t NbinsY = 24;
-	const Int_t NbinsPt = 11;
-        MyFile->mkdir("Small parameter");
-        MyFile->cd("Small parameter");
-	// v1 and v2 for protons
-        TProfile *v1PtPrSmall = new TProfile("v1PtPrSmall", "", NbinsPt, binsPt);
-        v1PtPrSmall->GetXaxis()->SetTitle("pt, GeV/c");
-        v1PtPrSmall->GetYaxis()->SetTitle("v1");
-        TProfile *v2PtPrSmall = new TProfile("v2PtPrSmall", "", NbinsPt, binsPt);
-        v2PtPrSmall->GetXaxis()->SetTitle("pt, GeV/c");
-        v2PtPrSmall->GetYaxis()->SetTitle("v2");
-        TProfile *v1RapPrSmall = new TProfile("v1RapPrSmall", "", NbinsY, binsY);
-        v1RapPrSmall->GetXaxis()->SetTitle("rapidity");
-        v1RapPrSmall->GetYaxis()->SetTitle("v1");
-        TProfile *v2RapPrSmall = new TProfile("v2RapPrSmall", "", NbinsY, binsY);
-        v1RapPrSmall->GetXaxis()->SetTitle("rapidity");
-        v1RapPrSmall->GetYaxis()->SetTitle("v1");
-        // v1 and v2 for pions
-        TProfile *v1PtPiSmall = new TProfile("v1PtPiSmall", "", NbinsPt, binsPt);
-        v1PtPiSmall->GetXaxis()->SetTitle("pt, GeV/c");
-        v1PtPiSmall->GetYaxis()->SetTitle("v1");
-        TProfile *v2PtPiSmall = new TProfile("v2PtPiSmall", "", NbinsPt, binsPt);
-        v2PtPiSmall->GetXaxis()->SetTitle("pt, GeV/c");
-        v2PtPiSmall->GetYaxis()->SetTitle("v2");
-        TProfile *v1RapPiSmall = new TProfile("v1RapPiSmall", "", NbinsY, binsY);
-        v1RapPiSmall->GetXaxis()->SetTitle("rapidity");
-        v1RapPiSmall->GetYaxis()->SetTitle("v1");
-        TProfile *v2RapPiSmall = new TProfile("v2RapPiSmall", "", NbinsY, binsY);
-        v1RapPiSmall->GetXaxis()->SetTitle("rapidity");
-        v1RapPiSmall->GetYaxis()->SetTitle("v1");
-	MyFile->cd("../");
-
-        MyFile->mkdir("Mid parameter");
-        MyFile->cd("Mid parameter");
-	// v1 and v2 for protons
-        TProfile *v1RapPrMid = new TProfile("v1RapPrMid", "", NbinsY, binsY);
-        v1RapPrMid->GetXaxis()->SetTitle("rapidity");
-        v1RapPrMid->GetYaxis()->SetTitle("v1");
-        TProfile *v2RapPrMid = new TProfile("v2RapPrMid", "", NbinsY, binsY);
-        v2RapPrMid->GetXaxis()->SetTitle("rapidity");
-        v2RapPrMid->GetYaxis()->SetTitle("v2");
-        TProfile *v1PtPrMid = new TProfile("v1PtPrMid", "", NbinsPt, binsPt);
-        v1PtPrMid->GetXaxis()->SetTitle("pt, GeV/c");
-        v1PtPrMid->GetYaxis()->SetTitle("v1");
-        TProfile *v2PtPrMid = new TProfile("v2PtPrMid", "", NbinsPt, binsPt);
-        v2PtPrMid->GetXaxis()->SetTitle("pt, GeV/c");
-        v2PtPrMid->GetYaxis()->SetTitle("v2");
-	// v1 and v2 for pions
-        TProfile *v1RapPiMid = new TProfile("v1RapPiMid", "", NbinsY, binsY);
-        v1RapPiMid->GetXaxis()->SetTitle("rapidity");
-        v1RapPiMid->GetYaxis()->SetTitle("v1");
-        TProfile *v2RapPiMid = new TProfile("v2RapPiMid", "", NbinsY, binsY);
-        v2RapPiMid->GetXaxis()->SetTitle("rapidity");
-        v2RapPiMid->GetYaxis()->SetTitle("v2");
-        TProfile *v1PtPiMid = new TProfile("v1PtPiMid", "", NbinsPt, binsPt);
-        v1PtPiMid->GetXaxis()->SetTitle("pt, GeV/c");
-        v1PtPiMid->GetYaxis()->SetTitle("v1");
-        TProfile *v2PtPiMid = new TProfile("v2PtPiMid", "", NbinsPt, binsPt);
-        v2PtPiMid->GetXaxis()->SetTitle("pt, GeV/c");
-        v2PtPiMid->GetYaxis()->SetTitle("v2");
-        MyFile->cd("../");
-
-        MyFile->mkdir("Big parameter");
-        MyFile->cd("Big parameter");
-	// v1 and v2 for protons
-        TProfile *v1RapPrBig = new TProfile("v1RapPrBig", "", NbinsY, binsY);
-        v1RapPrBig->GetXaxis()->SetTitle("rapidity");
-        v1RapPrBig->GetYaxis()->SetTitle("v1");
-        TProfile *v2RapPrBig = new TProfile("v2RapPrBig", "", NbinsY, binsY);
-        v2RapPrBig->GetXaxis()->SetTitle("rapidity");
-        v2RapPrBig->GetYaxis()->SetTitle("v2");
-        TProfile *v1PtPrBig = new TProfile("v1PtPrBig", "", NbinsPt, binsPt);
-        v1PtPrBig->GetXaxis()->SetTitle("pt, GeV/c");
-        v1PtPrBig->GetYaxis()->SetTitle("v1");
-        TProfile *v2PtPrBig = new TProfile("v2PtPrBig", "", NbinsPt, binsPt);
-        v2PtPrBig->GetXaxis()->SetTitle("pt, GeV/c");
-        v2PtPrBig->GetYaxis()->SetTitle("v2");
-	// v1 and v2 for pions
-        TProfile *v1RapPiBig = new TProfile("v1RapPiBig", "", NbinsY, binsY);
-        v1RapPiBig->GetXaxis()->SetTitle("rapidity");
-        v1RapPiBig->GetYaxis()->SetTitle("v1");
-        TProfile *v2RapPiBig = new TProfile("v2RapPiBig", "", NbinsY, binsY);
-        v2RapPiBig->GetXaxis()->SetTitle("rapidity");
-        v2RapPiBig->GetYaxis()->SetTitle("v2");
-        TProfile *v1PtPiBig = new TProfile("v1PtPiBig", "", NbinsPt, binsPt);
-        v1PtPiBig->GetXaxis()->SetTitle("pt, GeV/c");
-        v1PtPiBig->GetYaxis()->SetTitle("v1");
-        TProfile *v2PtPiBig = new TProfile("v2PtPiBig", "", NbinsPt, binsPt);
-        v2PtPiBig->GetXaxis()->SetTitle("pt, GeV/c");
-        v2PtPiBig->GetYaxis()->SetTitle("v2");
-	MyFile->cd("../");
-
-    	TProfile *v1Pr = new TProfile("v1Pr", "", 500, -5, 5); // Protons v1
-    	TProfile *v2Pr = new TProfile("v2Pr", "", 500, -5, 5); // Protons v2
-
-	Double_t rx1, ry1, px1, py1, pt, fi, rap, eta;	//Temporary storage for coordinates and momentum
-	Double_t X, Y, Z;		// Limits for coordinates
-	X = Y = Z = 200.0;
-	Double_t dx, dy, dz;	// Splitting characteristic
-	dx = dy = 20.0;
-	dz = dx;
-	int nx, ny, nz;         // Number of segmentss
+        Double_t rx1, ry1, px1, py1, pt, fi;    //Temporary storage for coordinates and momentum
+        Double_t X, Y, Z;               // Limits for coordinates
+        X = Y = Z = 200.0;
+        Double_t dx, dy, dz;    // Splitting characteristic
+        dx = dy = 20.0;
+        dz = dx;
+        int nx, ny, nz;         // Number of segmentss
         nx = 2*(X/dx) + 1;
         ny = 2*(Y/dy) + 1;
         nz = 2*(Z/dz) + 1;
+
+
+	// HIstograms
+	map <Int_t, TH1D*> arrHistPt;
+        map <Int_t, TH1D*> arrHistRap;
+	// Flow coeffitients
+	map <Int_t, TProfile*> arrProfv1PtSmall;
+	map <Int_t, TProfile*> arrProfv2PtSmall;
+        map <Int_t, TProfile*> arrProfv1RapSmall;
+        map <Int_t, TProfile*> arrProfv2RapSmall;
+        map <Int_t, TProfile*> arrProfv1PtMid;
+        map <Int_t, TProfile*> arrProfv2PtMid;
+        map <Int_t, TProfile*> arrProfv1RapMid;
+        map <Int_t, TProfile*> arrProfv2RapMid;
+        map <Int_t, TProfile*> arrProfv1PtBig;
+        map <Int_t, TProfile*> arrProfv2PtBig;
+        map <Int_t, TProfile*> arrProfv1RapBig;
+        map <Int_t, TProfile*> arrProfv2RapBig;
+	// Dependence v(Ro)
+        map <Int_t, TProfile*> arrProfvRo;
+	/*// Momentum and energy in a cell
+	map <Int_t, vector<pair<TVector3, TVector3> > > arrP;
+	map <Int_t, vector<> >
+	map <Int_t TH3D*> arrHistPx;
+	map <Int_t TH3D*> arrHistPy;
+	map <Int_t TH3D*> arrHistPz;
+        TH3D *HistPx2 = new TH3D("HistPx2", "", nbins, -200.0, 200.0, nbins, -200.0, 200.0, nbins, -200.0, 200.0);
+        TH3D *HistPy2 = new TH3D("HistPy2", "", nbins, -200.0, 200.0, nbins, -200.0, 200.0, nbins, -200.0, 200.0);
+        TH3D *HistPz2 = new TH3D("HistPz2", "", nbins, -200.0, 200.0, nbins, -200.0, 200.0, nbins, -200.0, 200.0);*/
+
+
+
+
+	// Probably better to do in vectors to have everything dynamically!!
+	vector<Int_t> arrPIDs = {3101, 3106, 3001, 2027};
+	string arrNames[] = {"Pion", "Kaon", "Proton", "Lambda"};
+
+	MyFile->mkdir("Small parameter");
+        MyFile->mkdir("Mid parameter");
+	MyFile->mkdir("Big parameter");
+
+
+	for (Int_t i = 0; i < arrPIDs.size(); i++) {
+			arrHistPt[arrPIDs[i]] = new TH1D(("Pt" + arrNames[i]).c_str(), "-1.2 < Eta < 1.2\n0.2 < Pt < 3", 500, 0, 5);
+			arrHistRap[arrPIDs[i]] =  new TH1D(("Rap" + arrNames[i]).c_str(), "-1.2 < Eta < 1.2\n0.2 < Pt < 3", 200, -5, 5); 
+			arrProfvRo[arrPIDs[i]] = new TProfile(("vRo" + arrNames[i]).c_str(), "", 500, 0, sqrt(nx*nx/4.0 + ny*ny/4.0));       // Velocity from ro
+        		arrProfvRo[arrPIDs[i]]->GetXaxis()->SetTitle("r, cells");
+
+			MyFile->cd("Small parameter");
+			arrProfv1PtSmall[arrPIDs[i]] = new TProfile(("v1PtSmall" + arrNames[i]).c_str(), "imp 0.0-3.0", NbinsPt, binsPt);
+			arrProfv1PtSmall[arrPIDs[i]]->GetXaxis()->SetTitle("pt, GeV/c");
+        		arrProfv1PtSmall[arrPIDs[i]]->GetYaxis()->SetTitle("v1");
+			arrProfv2PtSmall[arrPIDs[i]] = new TProfile(("v2PtSmall" + arrNames[i]).c_str(), "imp 0.0-3.0", NbinsPt, binsPt);
+                        arrProfv2PtSmall[arrPIDs[i]]->GetXaxis()->SetTitle("pt, GeV/c");
+                        arrProfv2PtSmall[arrPIDs[i]]->GetYaxis()->SetTitle("v2");
+                        arrProfv1RapSmall[arrPIDs[i]] = new TProfile(("v1RapSmall" + arrNames[i]).c_str(), "imp 0.0-3.0", NbinsY, binsY);
+                        arrProfv1RapSmall[arrPIDs[i]]->GetXaxis()->SetTitle("Rap");
+                        arrProfv1RapSmall[arrPIDs[i]]->GetYaxis()->SetTitle("v1");
+                        arrProfv2RapSmall[arrPIDs[i]] = new TProfile(("v2RapSmall" + arrNames[i]).c_str(), "imp 0.0-3.0", NbinsY, binsY);
+                        arrProfv2RapSmall[arrPIDs[i]]->GetXaxis()->SetTitle("Rap");
+                        arrProfv2RapSmall[arrPIDs[i]]->GetYaxis()->SetTitle("v2");
+			MyFile->cd("../");
+
+        		MyFile->cd("Mid parameter");
+			arrProfv1PtMid[arrPIDs[i]] = new TProfile(("v1PtMid" + arrNames[i]).c_str(), "imp 6.0-7.0", NbinsPt, binsPt);
+                        arrProfv1PtMid[arrPIDs[i]]->GetXaxis()->SetTitle("pt, GeV/c");
+                        arrProfv1PtMid[arrPIDs[i]]->GetYaxis()->SetTitle("v1");
+                        arrProfv2PtMid[arrPIDs[i]] = new TProfile(("v2PtMid" + arrNames[i]).c_str(), "imp 6.0-7.0", NbinsPt, binsPt);
+                        arrProfv2PtMid[arrPIDs[i]]->GetXaxis()->SetTitle("pt, GeV/c");
+                        arrProfv2PtMid[arrPIDs[i]]->GetYaxis()->SetTitle("v2");
+                        arrProfv1RapMid[arrPIDs[i]] = new TProfile(("v1RapMid" + arrNames[i]).c_str(), "imp 6.0-7.0", NbinsY, binsY);
+                        arrProfv1RapMid[arrPIDs[i]]->GetXaxis()->SetTitle("Rap");
+                        arrProfv1RapMid[arrPIDs[i]]->GetYaxis()->SetTitle("v1");
+                        arrProfv2RapMid[arrPIDs[i]] = new TProfile(("v2RapMid" + arrNames[i]).c_str(), "imp 6.0-7.0", NbinsY, binsY);
+                        arrProfv2RapMid[arrPIDs[i]]->GetXaxis()->SetTitle("Rap");
+                        arrProfv2RapMid[arrPIDs[i]]->GetYaxis()->SetTitle("v2");
+                        MyFile->cd("../");
+
+        		MyFile->cd("Big parameter");
+			arrProfv1PtBig[arrPIDs[i]] = new TProfile(("v1PtBig" + arrNames[i]).c_str(), "imp 10.0-12.0", NbinsPt, binsPt);
+                        arrProfv1PtBig[arrPIDs[i]]->GetXaxis()->SetTitle("pt, GeV/c");
+                        arrProfv1PtBig[arrPIDs[i]]->GetYaxis()->SetTitle("v1");
+                        arrProfv2PtBig[arrPIDs[i]] = new TProfile(("v2PtBig" + arrNames[i]).c_str(), "imp 10.0-12.0", NbinsPt, binsPt);
+                        arrProfv2PtBig[arrPIDs[i]]->GetXaxis()->SetTitle("pt, GeV/c");
+                        arrProfv2PtBig[arrPIDs[i]]->GetYaxis()->SetTitle("v2");
+                        arrProfv1RapBig[arrPIDs[i]] = new TProfile(("v1RapBig" + arrNames[i]).c_str(), "imp 10.0-12.0", NbinsY, binsY);
+                        arrProfv1RapBig[arrPIDs[i]]->GetXaxis()->SetTitle("Rap");
+                        arrProfv1RapBig[arrPIDs[i]]->GetYaxis()->SetTitle("v1");
+                        arrProfv2RapBig[arrPIDs[i]] = new TProfile(("v2RapBig" + arrNames[i]).c_str(), "imp 10.0-12.0", NbinsY, binsY);
+                        arrProfv2RapBig[arrPIDs[i]]->GetXaxis()->SetTitle("Rap");
+                        arrProfv2RapBig[arrPIDs[i]]->GetYaxis()->SetTitle("v2");
+                        MyFile->cd("../");
+
+
+
+
+
+	}
+
 
         TProfile *vRo = new TProfile("vRo", "", 500, 0, sqrt(nx*nx/4.0 + ny*ny/4.0));       // Velocity from ro
 	vRo->GetXaxis()->SetTitle("r, cells");
 
 	TVector3 vNull(0, 0, 0);	// Null vector
 
-	TVector3 arrP[nx][ny][nz], arrPPi[nx][ny][nz], arrPPr[nx][ny][nz];
+	TVector3 arrP[nx][ny][nz], arrPPi[nx][ny][nz], arrPPr[nx][ny][nz], arrPKa[nx][ny][nz],  arrPLa[nx][ny][nz];
 
 	// Total energy of particles
-	Double_t arrE[nx][ny][nz], arrEPi[nx][ny][nz], arrEPr[nx][ny][nz];
+	Double_t arrE[nx][ny][nz], arrEPi[nx][ny][nz], arrEPr[nx][ny][nz], arrEKa[nx][ny][nz], arrELa[nx][ny][nz];
 	for(Int_t i = 0; i < nx; i++) {
 		for(Int_t j = 0; j < ny; j++) {
                 	for(Int_t k = 0; k < nz; k++) {
                 		arrE[i][j][k] = 0.0;	// Set energy as zero
 				arrEPi[i][j][k] = 0.0;
 				arrEPr[i][j][k] = 0.0;
+				arrEKa[i][j][k] = 0.0;
+				arrELa[i][j][k] = 0.0
         		}
         	}
 	}
@@ -215,9 +199,9 @@ void Experiment::Loop()
 		if (time != t0) {
 			continue;
 		}
-            HistPsiRp->Fill(psiRp);
 
 		for (Int_t i = 0; i<n_particles; i++) {
+			// Rotate RP on angle psiRp
 			rx1=rx[i]; ry1=ry[i];
 			rx[i] = rx1*cos(psiRp)+ry1*sin(psiRp);
 			ry[i] = -rx1*sin(psiRp)+ry1*cos(psiRp);
@@ -231,10 +215,6 @@ void Experiment::Loop()
 				continue;
 			}
 
-            		fi = TMath::ATan2(py[i], px[i]);
-            		HistFi->Fill(TMath::ACos(TMath::Cos(fi)));
-            		HistFiPsi->Fill(TMath::ACos(TMath::Cos(fi-psiRp)));
-
 			// Determine cell of particle
 			int kx, ky, kz;
 			kx = (rx[i] + X)/dx;
@@ -244,123 +224,70 @@ void Experiment::Loop()
 			// Change energy and momentum
 			arrE[kx][ky][kz] += p0[i];
 			arrP[kx][ky][kz] += p;
-			pt = sqrt(px[i]*px[i] + py[i]*py[i]); //transverse momentum
-
-			// Draw histogramms for different particles
-			switch (pid[i]) {
-			case 3101:
-				arrEPi[kx][ky][kz] += p0[i];
+                        if (pid[i] == 3101) {
+                                arrEPi[kx][ky][kz] += p0[i];
 				arrPPi[kx][ky][kz] += p;
-				HistRapPi->Fill(pL.Rapidity());
-            			HistEtaPi->Fill(pL.Eta());
-               			v1Pi->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-               			v2Pi->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
-				HistPi->Fill(pt);
-				// Draw v2 for pions dependence
-                                if ((0.2 < pt) && (pt < 3.0)) {
+                        }
+                        else if (pid[i] == 3101) {
+                                arrEPi[kx][ky][kz] += p0[i];
+                                arrP[kx][ky][kz] += p;
+                        }
+                        else if (pid[i] == 3101) {
+                                arrEPi[kx][ky][kz] += p0[i];
+                                arrP[kx][ky][kz] += p;
+                        }
+                        else if (pid[i] == 3101) {
+                                arrEPi[kx][ky][kz] += p0[i];
+                                arrP[kx][ky][kz] += p;
+                        }
+
+
+
+			// Draw histogramms
+			if (arrHistPt.count(pid[i])) {
+				// Draw histogramms for different types of particles
+				arrHistPt.at(pid[i])->Fill(p.Pt());
+	                        arrHistRap.at(pid[i])->Fill(pL.Rapidity());
+				// Draw v1 and v2 for different impact parameters and particles
+				if ((0.2 < p.Pt()) && (p.Pt() < 3.0)) {
                                         if (imp < 3.0) {
-                                                v2RapPiSmall->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+                                               arrProfv2RapSmall.at(pid[i])->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
                                         }
                                         else if ((6.0 < imp) && (imp < 7.0)) {
-                                                v2RapPiMid->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+                                                arrProfv2RapMid.at(pid[i])->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
                                         }
                                         else if ((10.0 < imp) && (imp < 12.0)) {
-                                                v2RapPiBig->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
+                                                arrProfv2RapBig.at(pid[i])->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
                                         }
                                 }
                                 if((-1.0 < pL.Rapidity()) && (pL.Rapidity() < 1.0)) {
                                         if (imp < 3.0) {
-                                                v1RapPiSmall->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-                                                v2PtPiSmall->Fill(pt, TMath::Cos(2*(fi - psiRp)));
+                                                arrProfv1RapSmall.at(pid[i])->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+                                                arrProfv2PtSmall.at(pid[i])->Fill(p.Pt(), TMath::Cos(2*(fi - psiRp)));
                                         }
                                         else if ((6.0 < imp) && (imp < 7.0)) {
-                                                v1RapPiMid->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-                                                v2PtPiMid->Fill(pt, TMath::Cos(2*(fi - psiRp)));
+                                                arrProfv1RapMid.at(pid[i])->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+                                                arrProfv2PtMid.at(pid[i])->Fill(p.Pt(), TMath::Cos(2*(fi - psiRp)));
                                         }
                                         else if ((10.0 < imp) && (imp < 12.0)) {
-                                                v1RapPiBig->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-                                                v2PtPiBig->Fill(pt, TMath::Cos(2*(fi - psiRp)));
+                                                arrProfv1RapBig.at(pid[i])->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
+                                                arrProfv2PtBig.at(pid[i])->Fill(p.Pt(), TMath::Cos(2*(fi - psiRp)));
                                         }
                                 }
-				if ((-1.0 < pL.Rapidity()) && (pL.Rapidity() < 1.0) && ((pL.Rapidity() < -0.2) || (0.2 < pL.Rapidity()))) {
+                                if ((-1.0 < pL.Rapidity()) && (pL.Rapidity() < 1.0) && ((pL.Rapidity() < -0.2) || (0.2 < pL.Rapidity()))) {
                                         Short_t sign = 1;
                                         if (pL.Rapidity() < 0) { sign = -1; }
                                         if (imp < 3.0) {
-                                                v1PtPiSmall->Fill(pt, sign*TMath::Cos(fi - psiRp));
+                                                arrProfv1PtSmall.at(pid[i])->Fill(p.Pt(), sign*TMath::Cos(fi - psiRp));
                                         }
                                         else if ((6.0 < imp) && (imp < 7.0)) {
-                                                v1PtPiMid->Fill(pt, sign*TMath::Cos(fi - psiRp));
+                                                arrProfv1PtMid.at(pid[i])->Fill(p.Pt(), sign*TMath::Cos(fi - psiRp));
 
                                         }
                                         else if ((10.0 < imp) && (imp < 12.0)) {
-                                                v1PtPiBig->Fill(pt, sign*TMath::Cos(fi - psiRp));
+                                                arrProfv1PtBig.at(pid[i])->Fill(p.Pt(), sign*TMath::Cos(fi - psiRp));
                                         }
                                 }
-				break;
-			case 3106:
-				HistKa->Fill(pt);
-				break;
-			case 3001:
-               			arrEPr[kx][ky][kz] += p0[i];
-               			arrPPr[kx][ky][kz] += p;
-               			HistRapPr->Fill(pL.Rapidity());
-               			HistEtaPr->Fill(pL.Eta());
-               			v1Pr->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-               			v2Pr->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
-				// Draw v2 for protons dependence in rapidity
-				if ((0.2 < pt) && (pt < 3.0)) {
-					if (imp < 3.0) {
-						v2RapPrSmall->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
-					}
-					else if ((6.0 < imp) && (imp < 7.0)) {
-						v2RapPrMid->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
-					}
-					else if ((10.0 < imp) && (imp < 12.0)) {
-                                        	v2RapPrBig->Fill(pL.Rapidity(), TMath::Cos(2*(fi - psiRp)));
-					}
-				}
-				if((-1.0 < pL.Rapidity()) && (pL.Rapidity() < 1.0)) {
-		                        if (imp < 3.0) {
-                                                v1RapPrSmall->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-                                                v2PtPrSmall->Fill(pt, TMath::Cos(2*(fi - psiRp)));
-                                        }
-                                        else if ((6.0 < imp) && (imp < 7.0)) {
-                                                v1RapPrMid->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-                                                v2PtPrMid->Fill(pt, TMath::Cos(2*(fi - psiRp)));
-                                        }
-                                        else if ((10.0 < imp) && (imp < 12.0)) {
-                                                v1RapPrBig->Fill(pL.Rapidity(), TMath::Cos(fi - psiRp));
-                                                v2PtPrBig->Fill(pt, TMath::Cos(2*(fi - psiRp)));
-                                        }
-
-				}
-                                if ((-1.0 < pL.Rapidity()) && (pL.Rapidity() < 1.0) && ((pL.Rapidity() < -0.2) || (0.2 < pL.Rapidity()))) {
-                                        Short_t sign = 1;
-					if (pL.Rapidity() < 0) { sign = -1; }
-					if (imp < 3.0) {
-                                                v1PtPrSmall->Fill(pt, sign*TMath::Cos(fi - psiRp));
-					}
-                                        else if ((6.0 < imp) && (imp < 7.0)) {
-                                                v1PtPrMid->Fill(pt, sign*TMath::Cos(fi - psiRp));
-
-                                        }
-                                        else if ((10.0 < imp) && (imp < 12.0)) {
-                                                v1PtPrBig->Fill(pt, sign*TMath::Cos(fi - psiRp));
-                                        }
-                                }
-
-				HistPr->Fill(pt);
-	                        HistFiPr->Fill(TMath::ACos(TMath::Cos(fi)));
-                                HistPrPy->Fill(py[i]);
-                                HistPrPx->Fill(px[i]);
-				if ((10.0 < imp) && (imp < 12.0)) {
-                                	HistPrPyBig->Fill(py[i]);
-                                	HistPrPxBig->Fill(px[i]);
-				}
-				break;
-			case 2027:
-				HistLa->Fill(pt);
-				break;
 			}
 		}
 		//nb = fChain->GetEntry(jentry);   nbytes += nb;
@@ -390,7 +317,7 @@ void Experiment::Loop()
 					cout <<  "put zero vector here" << endl;
 					arrV[i][j][k] = vNull;
 				}
-				else {
+				else if(arrE[i][j][k] != 0) {
                                 	arrV[i][j][k] = arrP[i][j][k]*(1.0/arrE[i][j][k]);
 				}
 
@@ -400,7 +327,7 @@ void Experiment::Loop()
                                         cout <<  "put zero vector here" << endl;
                                         arrVPi[i][j][k] = vNull;
                                 }
-                                else {
+                                else if(arrE[i][j][k] != 0) {
                                         arrVPi[i][j][k] = arrPPi[i][j][k]*(1.0/arrEPi[i][j][k]);
                                 }
                                 if ((arrEPr[i][j][k] == 0) && (arrPPr[i][j][k]*arrP[i][j][k] != 0)) {
@@ -409,10 +336,9 @@ void Experiment::Loop()
                                         cout <<  "put zero vector here" << endl;
                                         arrVPr[i][j][k] = vNull;
                                 }
-                                else {
+                                else if(arrE[i][j][k] != 0) {
                                         arrVPr[i][j][k] = arrPPr[i][j][k]*(1.0/arrEPr[i][j][k]);
                                 }
-
                         }
                 }
         }
@@ -423,6 +349,9 @@ void Experiment::Loop()
 			for(int kz = 0; kz < nz; kz++) {
 				if (arrV[ix][jy][kz]*arrV[ix][jy][kz] == 0) {
 					continue;
+				}
+				for (Int_t i = 0; i < arrPIDs.size(); i++) {
+					arrProfvRo.at(arrPIDs[i])->Fill(sqrt((ix - nx/2.0)*(ix - nx/2.0) + (jy - ny/2.0)*(jy - ny/2.0)), sqrt(arrV[ix][jy][kz]*arrV[ix][jy][kz]));
 				}
 				vRo->Fill(sqrt((ix - nx/2.0)*(ix - nx/2.0) + (jy - ny/2.0)*(jy - ny/2.0)), sqrt(arrV[ix][jy][kz]*arrV[ix][jy][kz]));
 			}
@@ -457,26 +386,6 @@ void Experiment::Loop()
 			}
                 }
         }
-	HistPi->Write();
-	HistKa->Write();
-	HistPr->Write();
-	HistLa->Write();
-	HistFi->Write();
-
-	HistRapPi->Write();
-	HistEtaPi->Write();
-
-	v1Pi->Write();
-	v2Pi->Write();
-
-	HistRapPr->Write();
-	HistEtaPr->Write();
-
-	v1Pr->Write();
-	v2Pr->Write();
-
-	HistFiPsi->Write();
-	HistPsiRp->Write();
 	vRo->Write();
 
 	// Fill histograms
@@ -496,44 +405,9 @@ void Experiment::Loop()
 	HistV->Write();
 	HistVW->Write();
 	HistW->Write();
-        HistPiV->Write();
-        HistPrV->Write();
-	HistPrPy->Write();
-	HistPrPx->Write();
-        HistPrPyBig->Write();
-        HistPrPxBig->Write();
-	HistFiPr->Write();
 	MyFile->Write();
 
-        MyFile->cd("Small parameter");
-	v1PtPrSmall->Write();
-        v2PtPrSmall->Write();
-        v1RapPrSmall->Write();
-        v2RapPrSmall->Write();
-        v1PtPiSmall->Write();
-        v2PtPiSmall->Write();
-        v1RapPiSmall->Write();
-        v2RapPiSmall->Write();
-	MyFile->cd("../Mid parameter");
-        v1PtPrMid->Write();
-        v2PtPrMid->Write();
-        v1RapPrMid->Write();
-        v2RapPrMid->Write();
-        v1PtPiMid->Write();
-        v2PtPiMid->Write();
-        v1RapPiMid->Write();
-        v2RapPiMid->Write();
-	MyFile->cd("../Big parameter");
-	v1RapPrBig->Write();
-        v2RapPrBig->Write();
-        v1PtPrBig->Write();
-        v2PtPrBig->Write();
-        v1RapPiBig->Write();
-        v2RapPiBig->Write();
-        v1PtPiBig->Write();
-        v2PtPiBig->Write();
-        MyFile->cd("../");
 	MyFile->Close();
 
-	cout << "Helicity = " << H << endl;
+	cout << "Helicity = " << H << endl;	// We can try draw vn vs Helicity (+ narrow area on Pt)
 }
