@@ -10,13 +10,13 @@
     #qsub -q medium exe_convert_files.sh -F "${str} /mnt/pool/rhic/4/verbalune/forest_11.5/${str2}.root"
     #sleep 1.5
     #done
-i=1
+i=$1
 while [[ $i -lt 1000 ]]
         do
 		echo $i
                 qsub -t $[$i]-$[$i+39] -q long exe_convert_files.sh
 		let i=i+40
-		sleep 90;
+		sleep 120;
         done
 
 

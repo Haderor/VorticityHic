@@ -16,10 +16,3 @@ while [[ $i -lt 1000 ]]
                 let i=i+40
                 sleep 120;
         done
-
-
-
-
-
-
-
