@@ -12,6 +12,7 @@
 #include "TMath.h"
 #include "TLorentzVector.h"
 #include "TProfile.h"
+#include "TProfile3D.h"
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -60,7 +61,7 @@ void Experiment::Loop()
 
         Double_t rx1, ry1, px1, py1, pt, fi;    //Temporary storage for coordinates and momentum
         Double_t X, Y, Z;               // Limits for coordinates
-        X = Y = Z = 200.0;
+        X = Y = Z = 230.0;
         Double_t dx, dy, dz;    // Splitting characteristic
         dx = dy = 20.0;
         dz = dx;
@@ -93,9 +94,9 @@ void Experiment::Loop()
         map <Int_t, TH3D*> arrHistPySmall;
         map <Int_t, TH3D*> arrHistPzSmall;
         map <Int_t, TH3D*> arrHistESmall;
-        map <Int_t, TH3D*> arrHistVx_2Small;	// Sum of velocities in the cell
-        map <Int_t, TH3D*> arrHistVy_2Small;
-        map <Int_t, TH3D*> arrHistVz_2Small;
+        map <Int_t, TProfile3D*> arrHistVx_2Small;	// Sum of velocities in the cell
+        map <Int_t, TProfile3D*> arrHistVy_2Small;
+        map <Int_t, TProfile3D*> arrHistVz_2Small;
 
 	// Names and PIDs of particles
         vector<string> arrNames = {"All", "Pion", "Kaon", "Proton", "Lambda"};
@@ -136,7 +137,7 @@ void Experiment::Loop()
         		MyFile->cd("Big parameter");
 			arrProfv1PtBig[arrPIDs[i]] = new TProfile(("v1PtBig" + arrNames[i]).c_str(), "imp 10.0-12.0;pt, GeV/c;v1", NbinsPt, binsPt);
                         arrProfv2PtBig[arrPIDs[i]] = new TProfile(("v2PtBig" + arrNames[i]).c_str(), "imp 10.0-12.0;pt, GeV/c;v2", NbinsPt, binsPt);
-                        arrProfv1RapBig[arrPIDs[i]] = new TProfile(("v1RapBig" + arrNames[i]).c_str(), "imp 10.0-12.0;Rap;v1"", NbinsY, binsY);
+                        arrProfv1RapBig[arrPIDs[i]] = new TProfile(("v1RapBig" + arrNames[i]).c_str(), "imp 10.0-12.0;Rap;v1", NbinsY, binsY);
                         arrProfv2RapBig[arrPIDs[i]] = new TProfile(("v2RapBig" + arrNames[i]).c_str(), "imp 10.0-12.0;Rap;v2", NbinsY, binsY);
                         MyFile->cd("../");
 
@@ -144,11 +145,10 @@ void Experiment::Loop()
                         arrHistPxSmall[arrPIDs[i]] = new TH3D(("PxSmall" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(), bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
                         arrHistPySmall[arrPIDs[i]] = new TH3D(("PySmall" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
                         arrHistPzSmall[arrPIDs[i]] = new TH3D(("PzSmall" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
-                        arrHistVx_2Small[arrPIDs[i]] = new TH3D(("Vx_2Small" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
-                        arrHistVy_2Small[arrPIDs[i]] = new TH3D(("Vy_2Small" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
-                        arrHistVz_2Small[arrPIDs[i]] = new TH3D(("Vz_2Small" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
                         arrHistESmall[arrPIDs[i]] = new TH3D(("ESmall" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
-
+                        arrHistVx_2Small[arrPIDs[i]] = new TProfile3D(("Vx_2Small" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
+                        arrHistVy_2Small[arrPIDs[i]] = new TProfile3D(("Vy_2Small" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
+                        arrHistVz_2Small[arrPIDs[i]] = new TProfile3D(("Vz_2Small" + arrNames[i]).c_str(), (cuts + "; x, fm; y, fm; z, fm").c_str(),bins_x, -X, X, bins_y, -Y, Y, bins_z, -Z, Z);
 	}
 	TH1D *HistFi = new TH1D("HistFi", "", 50, -7, 7);
         TH1D *HistFiPsi = new TH1D("HistFiPsi", "", 50, -7, 7);
